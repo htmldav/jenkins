@@ -1,0 +1,52 @@
+pipeline {
+    agent { docker 'maven:3.8.1-adoptopenjdk-11' }
+    stages {
+        stage('Example Build') {
+            steps {
+                echo 'Hello, Maven'
+                sh 'mvn --version'
+            }
+        }
+        stage('delete test') {
+            steps {
+                sh 'rm -rf test'
+            }
+        }
+        stage('Copy source') {
+            steps {
+                echo 'Copy source'    
+                sh 'git clone https://github.com/htmldav/test.git'
+            }
+        }
+        stage('Build war') {
+            steps {
+                sh 'cd test && mvn package'
+            }
+        }
+        
+        stage('Test && Make docker image') {
+            steps {
+                sh 'cd test && cat Dockerfile && docker build -t testdind .'
+                sh 'docker tag testdind 51.250.20.7:8123/testdind && docker login -u admin -p Gfdkjdcrfz25 51.250.20.7:8123 && docker push 51.250.20.7:8123/testdind'
+            }
+        }
+        
+        stage('Run docker on server_deb') {
+            steps {
+                
+                    sh '''
+                        [ -d ~/.ssh ] || mkdir ~/.ssh && chmod 0700 ~/.ssh
+                        ssh-keyscan -t rsa,dsa 51.250.26.36 >> ~/.ssh/known_hosts
+                        ssh -T root@51.250.26.36 << EOF
+	                    cd /home/aldav/
+	                    docker login -u admin -p Gfdkjdcrfz25 51.250.20.7:8123
+	                    docker pull 51.250.20.7:8123/testdind
+	                    docker run -d -p 8080:8080 51.250.20.7:8123/testdind
+                         EOF
+                        '''
+                   
+                
+                }
+            }
+    }
+}
