@@ -1,5 +1,7 @@
 pipeline {
-    agent { docker 'maven:3.8.1-adoptopenjdk-11' }
+    agent { docker 'maven:3.8.1-adoptopenjdk-11' 
+    args '-v /var/run/docker.sock:/var/run/docker.sock'
+    }
     stages {
         stage('Example Build') {
             steps {
@@ -27,11 +29,16 @@ pipeline {
         stage('Test && Make docker image') {
             steps {
                 sh 'cd test && cat Dockerfile && docker build -t testdind .'
-                sh 'docker tag testdind 51.250.20.7:8123/testdind && docker login -u admin -p Gfdkjdcrfz25 51.250.20.7:8123 && docker push 51.250.20.7:8123/testdind'
+                sh 'docker tag testdind 62.84.123.145:8123/testdind && 
+                docker login -u admin -p Gfdkjdcrfz25 62.84.123.145:8123 && 
+                docker push 62.84.123.145:8123/testdind'
             }
         }
-        
-        stage('Run docker on server_deb') {
+              
+    }
+}
+
+stage('Run docker on server_deb') {
             steps {
                 
                     sh '''
@@ -39,14 +46,12 @@ pipeline {
                         ssh-keyscan -t rsa,dsa 51.250.26.36 >> ~/.ssh/known_hosts
                         ssh -T root@51.250.26.36 << EOF
 	                    cd /home/aldav/
-	                    docker login -u admin -p Gfdkjdcrfz25 51.250.20.7:8123
-	                    docker pull 51.250.20.7:8123/testdind
-	                    docker run -d -p 8080:8080 51.250.20.7:8123/testdind
+	                    docker login -u admin -p Gfdkjdcrfz25 62.84.123.145:8123
+	                    docker pull 62.84.123.145:8123/testdind
+	                    docker run -d -p 8080:8080 62.84.123.145:8123/testdind
                          EOF
                         '''
                    
                 
                 }
             }
-    }
-}
