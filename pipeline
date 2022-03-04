@@ -2,7 +2,7 @@ pipeline {
     agent { 
         docker { 
             image 'maven:3.8.1-adoptopenjdk-11' 
-            args '-v /var/run/docker.sock:/var/run/docker.sock -v /usr/bin/docker:/usr/bin/docker'
+            args '-u root:root -v /var/run/docker.sock:/var/run/docker.sock -v /usr/bin/docker:/usr/bin/docker'
         }
     }
     stages {
@@ -31,9 +31,8 @@ pipeline {
         
         stage('Test && Make docker image') {
             steps {
-                sh 'cd test && cat Dockerfile && docker build -t testdind . && docker tag testdind aldav99/testdind && docker push aldav99/testdind'
+                sh 'cd test && cat Dockerfile && docker build -t testdind . && docker tag testdind aldav99/testdind && echo "Gfdkjdcrfz25" | docker login --username aldav99 --password-stdin docker.io && docker push aldav99/testdind'
             }
         }
-              
     }
 }
