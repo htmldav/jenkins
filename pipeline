@@ -34,5 +34,11 @@ pipeline {
                 sh 'cd test && cat Dockerfile && docker build -t testdind . && docker tag testdind aldav99/testdind && echo "Gfdkjdcrfz25" | docker login --username aldav99 --password-stdin docker.io && docker push aldav99/testdind'
             }
         }
+        
+        stage('Pull image') {
+            steps {
+                sh 'ssh-keygen -t rsa -f /root/.ssh/id_rsa && ssh-copy-id -i root@84.201.161.35 && ssh -t -t root@84.201.161.35 && docker pull aldav99/testdind'
+            }
+        }
     }
 }
