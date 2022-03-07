@@ -37,7 +37,9 @@ pipeline {
         
         stage('Pull image') {
             steps {
-                sh 'ssh-keygen -t rsa -f /root/.ssh/id_rsa && ssh-copy-id -i root@84.201.161.35 && ssh -t -t root@84.201.161.35 && docker pull aldav99/testdind'
+                sshagent (credentials: ['4cff31d5-e51c-44fb-b76b-5ef16e349e39']) {
+                sh "ssh -vvv -o StrictHostKeyChecking=no -T root@84.201.163.46"
+                }   
             }
         }
     }
