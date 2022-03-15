@@ -1,7 +1,7 @@
 pipeline {
     agent { 
         docker { 
-            image 'maven:3.8.1-adoptopenjdk-11' 
+            image 'aldav99/ssh-test:v15031'
             args '-u root:root -v /var/run/docker.sock:/var/run/docker.sock -v /usr/bin/docker:/usr/bin/docker'
         }
     }
@@ -10,6 +10,9 @@ pipeline {
             steps {
                 echo 'Hello, Maven'
                 sh 'mvn --version'
+                
+                echo 'Hello, openssh-client'
+                sh 'ssh -V'
             }
         }
         stage('delete test') {
@@ -37,9 +40,7 @@ pipeline {
         
         stage('Pull image') {
             steps {
-                sshagent (credentials: ['4cff31d5-e51c-44fb-b76b-5ef16e349e39']) {
-                sh "ssh -vvv -o StrictHostKeyChecking=no -T root@84.201.163.46"
-                }   
+                sh 'docker run -it --rm aldav99/ssh-test:v15031 ssh root@130.193.53.205'
             }
         }
     }
