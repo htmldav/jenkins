@@ -1,7 +1,7 @@
 pipeline {
     agent { 
         docker { 
-            image 'aldav99/ssh-test:v15031'
+            image 'aldav99/ssh-test:v170304'
             args '-u root:root -v /var/run/docker.sock:/var/run/docker.sock -v /usr/bin/docker:/usr/bin/docker'
         }
     }
@@ -40,7 +40,12 @@ pipeline {
         
         stage('Pull image') {
             steps {
-                sh 'docker run -it --rm aldav99/ssh-test:v15031 ssh root@130.193.53.205'
+                sh 'ssh-keyscan -H 130.193.55.125 >> ~/.ssh/known_hosts'
+                sh 'ssh root@130.193.55.125'
+                sh '''ssh root@130.193.55.125 << EOF
+	docker pull aldav99/testdind
+	docker run -d -p 8080:8080 aldav99/testdind
+EOF'''
             }
         }
     }
